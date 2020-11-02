@@ -10,14 +10,7 @@
 # Put that player onto team2 and post the match **team1 vs team2*.
 # There are 9 players left in the pool; go back to step 1. Iterate as necessary.
 #
-import requests
-import json
-from datetime import datetime
 from luccigg import db
-
-class Usersession():
-    sid
-    summonerlist
 
 
 class Summoner(db.Model):
@@ -27,22 +20,19 @@ class Summoner(db.Model):
     summoner_icon = db.Column(db.String(20), nullable=False, default='default.jpg')
     rank = db.Column(db.String(60), nullable=False)
     mmr = db.Column(db.Integer, nullable=False)
-    def setRolePreference(self, rolepreference):
-        self.rolepreference = rolepreference
+    def __repr__(self):
+        return f"Summoner('{self.username}')"
+    def to_json(self):
+        return {
+            "eid": self.eid,
+            "username": self.username,
+            "pid": int(self.pid),
+            "summoner_icon": self.summoner_icon,
+            "rank": self.rank,
+            "mmr": int(self.mmr),
+        }
 
-# def matchmake(mode):
-#     #sort players from highest to lowest.  Add highest to team 1, then add each next player to the team with the lowest rating.
-#     summoners.sort(key=lambda summoner: summoner.mmr)
-#     #insert top player into team 1.
-#     Team1.append(summoners.pop(0))
-#     Team1mmr = Team1[0].mmr
-#
-#     while (summoners.notempty):
-#         if team1mmr <= team2mmr:
-#             team2.append(summoners.pop(0))
-#         else:
-#             team1.append*summoners.pop(0))
-#     avg = mean(ranks)
+
 
 
 

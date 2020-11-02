@@ -1,9 +1,8 @@
 from flask import render_template, url_for, flash, redirect, request, session
 from luccigg import app, db, api_key
-from luccigg.forms import InsertSummoner
+from luccigg.forms import InsertSummoner, MatchmakeForm
 from luccigg.classes import Summoner
 import requests
-import json
 
 
 def mmrconvert1(rank):
@@ -41,7 +40,7 @@ def mmrconvert2(division):
     else:
         return 0
 
-def addSummoner(form_data):
+def addSummonerDB(form_data):
     summoner = Summoner.query.filter_by(username=form_data).first()
     if not summoner:
         response = requests.get("https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + str(form_data) + "?api_key=" + api_key)
@@ -72,64 +71,109 @@ def addSummoner(form_data):
     return summoner
 
 @app.route("/add-summoner/<s>")
-def add_SummonerToSession(s):
-    if "summoners" not in session:
-        session['summoners'] = []
-    session['summoners']
+def addSumm(s):
+    if "summoner1" not in session:
+        session['summoner1'] = s
+    elif "summoner2" not in session:
+        session['summoner2'] = s
+    elif "summoner3" not in session:
+        session['summoner3'] = s
+    elif "summoner4" not in session:
+        session['summoner4'] = s
+    elif "summoner5" not in session:
+        session['summoner5'] = s
+    elif "summoner6" not in session:
+        session['summoner6'] = s
+    elif "summoner7" not in session:
+        session['summoner7'] = s
+    elif "summoner8" not in session:
+        session['summoner8'] = s
+    elif "summoner9" not in session:
+        session['summoner9'] = s
+    elif "summoner10" not in session:
+        session['summoner10'] = s
+    return redirect(url_for('home'))
+
+@app.route("/matchmake")
+def matchmake():
+    #sort players from highest to lowest.  Add highest to team 1, then add each next player to the team with the lowest rating.
+    summoners = []
+    summoners.append(Summoner.query.filter_by(eid=session['summoner1']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner2']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner3']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner4']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner5']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner6']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner7']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner8']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner9']).first())
+    summoners.append(Summoner.query.filter_by(eid=session['summoner10']).first())
+    summoners.sort(key=lambda summoner: summoner.mmr, reverse=True)
+    Team1 = []
+    Team2 = []
+    Team1.append(summoners.pop(0))
+    Team1mmr = Team1[0].mmr
+    Team2mmr = 0
+    while (len(summoners)>0):
+        if len(Team2) < 5 and Team2mmr <= Team1mmr:
+            Team2.append(summoners.pop(0))
+            Team2mmr += Team2[-1].mmr
+        elif len(Team1) < 5:
+            Team1.append(summoners.pop(0))
+            Team1mmr += Team1[-1].mmr
+        else:
+            Team2.append(summoners.pop(0))
+            Team2mmr += Team2[-1].mmr
+    summoners.clear()
+    for i in range(0,5):
+        summoners.append(Team1.pop(0))
+        summoners.append(Team2.pop(0))
+    return render_template('matchmake.html', summoners=summoners)
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
-def home(s1=None, s2=None, s3=None, s4=None, s5=None, s6=None, s7=None, s8=None, s9=None, s10=None, i1=None, i2=None, i3=None, i4=None, i5=None, i6 =None, i7=None, i8=None, i9=None, i10=None):
-
+def home():
+    basei = url_for('static', filename='profile_pics/0.png')
+    summoners = []
+    if "summoner1" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner1']).first()
+        summoners.append(summ)
+    if "summoner2" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner2']).first()
+        summoners.append(summ)
+    if "summoner3" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner3']).first()
+        summoners.append(summ)
+    if "summoner4" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner4']).first()
+        summoners.append(summ)
+    if "summoner5" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner5']).first()
+        summoners.append(summ)
+    if "summoner6" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner6']).first()
+        summoners.append(summ)
+    if "summoner7" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner7']).first()
+        summoners.append(summ)
+    if "summoner8" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner8']).first()
+        summoners.append(summ)
+    if "summoner9" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner9']).first()
+        summoners.append(summ)
+    if "summoner10" in session:
+        summ = Summoner.query.filter_by(eid=session['summoner10']).first()
+        summoners.append(summ)
+    if len(summoners) == 10:
+        matchmakeform = MatchmakeForm()
+        if matchmakeform.validate_on_submit():
+            return redirect(url_for('matchmake'))
+        return render_template('home.html', form=matchmakeform, basei=basei, summoners=summoners, size=len(summoners))
     form = InsertSummoner()
-    if not s1 and form.validate_on_submit():
-        s1 = addSummoner(form.summoner.data)
-        i1 = url_for('static', filename='profile_pics/' + s1.summoner_icon)
-        flash('Summoner added!', 'success')
+    if form.validate_on_submit():
+        s = addSummonerDB(form.summoner.data)
+        return redirect(url_for('addSumm', s=s.eid))
+    return render_template('home.html', form=form, basei=basei, summoners=summoners, size=len(summoners))
 
-        return render_template('home.html', form=form, s1=s1, s2=s2, i1=i1, i2=i2)
-    elif not s2 and form.validate_on_submit():
-        print(form.submit.data)
-        s2 = addSummoner(form.summoner.data)
-        i2 = url_for('static', filename='profile_pics/' + s2.summoner_icon)
-        flash('Summoner added!', 'success')
-        return home(s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, s6=s6, s7=s7, s8=s8, s9=s9, s10=s10, i1=i1, i2=i2, i3=i3, i4=i4, i5=i5, i6=i6, i7=i7, i8=i8, i9=i9, i10=i10)
-    # if form1.validate_on_submit():
-    #     s3 = addSummoner(form1.summoner.data)
-    # if form1.validate_on_submit():
-    #     s4 = addSummoner(form1.summoner.data)
-    # if form1.validate_on_submit():
-    #     s5 = addSummoner(form1.summoner.data)
-    # if form1.validate_on_submit():
-    #     s6 = addSummoner(form1.summoner.data)
-    # if form1.validate_on_submit():
-    #     s7 = addSummoner(form1.summoner.data)
-    # if form1.validate_on_submit():
-    #     s8 = addSummoner(form1.summoner.data)
-    # if form1.validate_on_submit():
-    #     s9 = addSummoner(form1.summoner.data)
-    # if form1.validate_on_submit():
-    #     s10 = addSummoner(form1.summoner.data)
-    # return render_template('home.html', form1=form1, form2=form2, form3=form3, form4=form4, form5=form5, form6=form6, form7=form7, form8=form8, form9=form9, form10=form10, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, s6=s6, s7=s7, s8=s8, s9=s9, s10=s10)
-    if not i1:
-        i1 = url_for('static', filename='profile_pics/0.png')
-    if not i2:
-        i2 = url_for('static', filename='profile_pics/0.png')
-    if not i3:
-        i3 = url_for('static', filename='profile_pics/0.png')
-    if not i4:
-        i4 = url_for('static', filename='profile_pics/0.png')
-    if not i5:
-        i5 = url_for('static', filename='profile_pics/0.png')
-    if not i6:
-        i6 = url_for('static', filename='profile_pics/0.png')
-    if not i7:
-        i7 = url_for('static', filename='profile_pics/0.png')
-    if not i8:
-        i8 = url_for('static', filename='profile_pics/0.png')
-    if not i9:
-        i9 = url_for('static', filename='profile_pics/0.png')
-    if not i10:
-        i10 = url_for('static', filename='profile_pics/0.png')
-    return render_template('home.html', form=form, s1=s1, s2=s2, i1=i1, i2=i2)
 
