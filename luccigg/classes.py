@@ -15,6 +15,10 @@ import json
 from datetime import datetime
 from luccigg import db
 
+class Usersession():
+    sid
+    summonerlist
+
 
 class Summoner(db.Model):
     eid = db.Column(db.String(100), primary_key=True)

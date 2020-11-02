@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, session
 from luccigg import app, db, api_key
 from luccigg.forms import InsertSummoner
 from luccigg.classes import Summoner
@@ -69,32 +69,31 @@ def addSummoner(form_data):
         summoner = Summoner(eid=eid, username=sname, pid=pid, summoner_icon=picture, rank=rank, mmr=mmr)
         db.session.add(summoner)
         db.session.commit()
-    flash('Summoner added!', 'success')
     return summoner
 
+@app.route("/add-summoner/<s>")
+def add_SummonerToSession(s):
+    if "summoners" not in session:
+        session['summoners'] = []
+    session['summoners']
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 def home(s1=None, s2=None, s3=None, s4=None, s5=None, s6=None, s7=None, s8=None, s9=None, s10=None, i1=None, i2=None, i3=None, i4=None, i5=None, i6 =None, i7=None, i8=None, i9=None, i10=None):
-    if not s1:
-        form1 = InsertSummoner()
-    else:
-        form1 = None
-    # form2 = InsertSummoner()
-    # form3 = InsertSummoner()
-    # form4 = InsertSummoner()
-    # form5 = InsertSummoner()
-    # form6 = InsertSummoner()
-    # form7 = InsertSummoner()
-    # form8 = InsertSummoner()
-    # form9 = InsertSummoner()
-    # form10 = InsertSummoner()
-    if form1.validate_on_submit():
-        s1 = addSummoner(form1.summoner.data)
+
+    form = InsertSummoner()
+    if not s1 and form.validate_on_submit():
+        s1 = addSummoner(form.summoner.data)
         i1 = url_for('static', filename='profile_pics/' + s1.summoner_icon)
-        return home(s1=s1, i1=i1)
-    # if form1.validate_on_submit():
-    #     s2 = addSummoner(form1.summoner.data)
+        flash('Summoner added!', 'success')
+
+        return render_template('home.html', form=form, s1=s1, s2=s2, i1=i1, i2=i2)
+    elif not s2 and form.validate_on_submit():
+        print(form.submit.data)
+        s2 = addSummoner(form.summoner.data)
+        i2 = url_for('static', filename='profile_pics/' + s2.summoner_icon)
+        flash('Summoner added!', 'success')
+        return home(s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, s6=s6, s7=s7, s8=s8, s9=s9, s10=s10, i1=i1, i2=i2, i3=i3, i4=i4, i5=i5, i6=i6, i7=i7, i8=i8, i9=i9, i10=i10)
     # if form1.validate_on_submit():
     #     s3 = addSummoner(form1.summoner.data)
     # if form1.validate_on_submit():
@@ -132,6 +131,5 @@ def home(s1=None, s2=None, s3=None, s4=None, s5=None, s6=None, s7=None, s8=None,
         i9 = url_for('static', filename='profile_pics/0.png')
     if not i10:
         i10 = url_for('static', filename='profile_pics/0.png')
-    if s1:
-        print("yay")
-    return render_template('home.html', form1=form1, s1=s1, i1=i1)
+    return render_template('home.html', form=form, s1=s1, s2=s2, i1=i1, i2=i2)
+

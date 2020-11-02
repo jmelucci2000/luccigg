@@ -1,37 +1,77 @@
-{% extends "layout.html" %}
+{% extends "test.html" %}
 {% block content %}
-<div class="content-section">
-    {% if s1 %}
+<div class="col-md-6">
+    <div class="content-section">
+        {% if s1 %}
+        <div class="media">
+            <img class="rounded-circle account-img" src="{{ i1 }}">
+            <div class="media-body">
+              <h2 class="account-heading">{{ s1.username }}</h2>
+              <p class="text-">{{ s1.rank }}</p>
+            </div>
+          </div>
+        {% else %}
+        <form method="POST" action="">
+            {{ form.csrf_token() }}
+            <div class="media">
+            <img class="rounded-circle account-img" src="{{ i1 }}">
+                <div class="form media-body">
+                        {{ form.summoner.label(class="form-control-label h2 account-heading") }}
+                        {% if form.summoner.errors %}
+                            {{ form.summoner(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.summoner.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.summoner(class="form-control form-control-lg") }}
+                        {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info ml-3",style="margin-top:4rem;") }}
+                </div>
+          </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% if s1 %}
+<div class="col-md-6">
+    <div class="content-section">
+    {% if s2 %}
     <div class="media">
-        <img class="rounded-circle account-img" src="{{ i1 }}">
+        <img class="rounded-circle account-img" src="{{ i2 }}">
         <div class="media-body">
-          <h2 class="account-heading">{{ s1.username }}</h2>
-          <p class="text-secondary">{{ s1.rank }}</p>
+          <h2 class="account-heading">{{ s2.username }}</h2>
+          <p class="text-">{{ s2.rank }}</p>
         </div>
       </div>
     {% else %}
     <form method="POST" action="">
-        {{ form1.hidden_tag() }}
+        {{ form.csrf_token() }}
         <div class="media">
-        <img class="rounded-circle account-img" src="{{ i1 }}">
-            <div class="form-group">
-                    {{ form1.summoner.label(class="form-control-label") }}
-                    {% if form1.summoner.errors %}
-                        {{ form1.summoner(class="form-control form-control-lg is-invalid") }}
+        <img class="rounded-circle account-img" src="{{ i2 }}">
+            <div class="form media-body">
+                    {{ form.summoner.label(class="form-control-label h2 account-heading") }}
+                    {% if form.summoner.errors %}
+                        {{ form.summoner(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form1.summoner.errors %}
+                            {% for error in form.summoner.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form1.summoner(class="form-control form-control-lg") }}
+                        {{ form.summoner(class="form-control form-control-lg") }}
                     {% endif %}
             </div>
             <div class="form-group">
-                {{ form1.submit(class="btn btn-outline-info") }}
+                {{ form.submit(class="btn btn-outline-info ml-3",style="margin-top:4rem;") }}
             </div>
       </div>
     </form>
     {% endif %}
+    </div>
 </div>
+{% endif %}
 {% endblock content %}
