@@ -1,5 +1,8 @@
 {% extends "design.html" %}
 {% block content %}
+    <div class="col-sm-12 text-center">
+        <h1 class="display-2 mb-5",style="font-weight:500;">Matchmake Below!</h1>
+    </div>
     {% for summoner in summoners %}
         <div class="col-md-6">
             <div class="content-section">
@@ -41,13 +44,14 @@
             </div>
         </div>
     {% else %}
-        <div class="col-md-8 align-center">
+        <div class="col-sm-12">
             <form method="POST" action="">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
-                    {{ form.msubmit(class="btn btn-outline-info") }}
+                    {{ form.msubmit(class="btn btn-outline-info btn-lg btn-block") }}
                 </div>
             </form>
         </div>
     {% endif %}
+
 {% endblock content %}

@@ -92,6 +92,7 @@ def addSumm(s):
         session['summoner9'] = s
     elif "summoner10" not in session:
         session['summoner10'] = s
+    flash('Summoner Added!', 'success')
     return redirect(url_for('home'))
 
 @app.route("/matchmake")
